@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold">Manage Artworks</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manage Artworks</h1>
             <a href="{{ route('admin.artworks.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add New Artwork</a>
         </div>
 
@@ -23,16 +23,16 @@
                         <th class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody class="divide-y text-gray-900">
                     @foreach($artworks as $artwork)
                         <tr>
                             <td class="px-6 py-4">
                                 <img src="{{ asset('images/' . $artwork->image) }}" class="w-12 h-12 object-cover rounded">
                             </td>
-                            <td class="px-6 py-4 text-sm font-bold">{{ $artwork->title }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $artwork->artist }}</td>
-                            <td class="px-6 py-4 text-sm">${{ number_format($artwork->price, 2) }}</td>
-                            <td class="px-6 py-4 text-sm">{{ $artwork->stock }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-900">{{ $artwork->title }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $artwork->artist }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">${{ number_format($artwork->price, 2) }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ $artwork->stock }}</td>
                             <td class="px-6 py-4 text-sm flex gap-3">
                                 <a href="{{ route('admin.artworks.edit', $artwork) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                 <form action="{{ route('admin.artworks.destroy', $artwork) }}" method="POST" onsubmit="return confirm('Delete this artwork?')">

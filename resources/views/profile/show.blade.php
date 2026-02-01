@@ -11,45 +11,33 @@
                 </p>
             </div>
 
+            @if (session('message'))
+                <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
+                    <p class="text-green-800 dark:text-green-200 font-medium">✓ {{ session('message') }}</p>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Left Column: Profile & Security -->
                 <div class="space-y-8">
                     <!-- Basic Info & Contact Details -->
-                    <div class="bg-white dark:bg-ash-900 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-ash-800">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="h-16 w-16 rounded-full bg-ash-100 dark:bg-ash-800 flex items-center justify-center text-2xl">
-                                🎨
-                            </div>
+                <div class="bg-white dark:bg-ash-900 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-ash-800">
+                        <div class="flex items-center gap-4 mb-6" wire:poll.5s>
+                            <img src="{{ auth()->user()->fresh()->profile_photo_url }}" 
+                                 alt="{{ auth()->user()->name }}" 
+                                 class="h-16 w-16 rounded-full object-cover border-2 border-gray-200 dark:border-ash-700"
+                                 key="{{ auth()->user()->updated_at }}">
                             <div>
                                 <h3 class="font-bold text-xl text-gray-900 dark:text-white">{{ auth()->user()->name }}</h3>
                                 <p class="text-sm text-gray-500 dark:text-ash-400">{{ auth()->user()->email }}</p>
-                                
-                                <button onclick="document.getElementById('passwordModal').showModal()" class="mt-2 text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:underline">
-                                    Change Password
-                                </button>
                             </div>
                         </div>
                         
                         <hr class="border-gray-100 dark:border-ash-800 my-6">
 
-                        <h4 class="font-bold text-gray-900 dark:text-white mb-4">Contact Details</h4>
+                        <h4 class="font-bold text-gray-900 dark:text-white mb-4 border-b-2 border-ash-800 pb-1 inline-block">Contact Details</h4>
                         @livewire('profile.update-user-details')
                     </div>
-
-                    <!-- Password Modal (Native Dialog) -->
-                    <dialog id="passwordModal" class="p-0 rounded-3xl backdrop:bg-black/50 dark:backdrop:bg-black/80 bg-transparent shadow-2xl">
-                        <div class="bg-white dark:bg-ash-900 w-full max-w-lg p-8 rounded-3xl border border-gray-100 dark:border-ash-800">
-                             <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Update Password</h3>
-                                <form method="dialog">
-                                    <button class="text-gray-400 hover:text-red-500 transition">
-                                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                    </button>
-                                </form>
-                             </div>
-                             @livewire('profile.update-password-form')
-                        </div>
-                    </dialog>
 
                      <!-- Logout -->
                     <div class="bg-white dark:bg-ash-900 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-ash-800">

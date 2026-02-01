@@ -47,7 +47,7 @@
 
                 <div>
                     <x-label for="description" value="Description" />
-                    <textarea id="description" name="description" rows="5" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" required>{{ $artwork->description }}</textarea>
+                    <textarea id="description" name="description" rows="5" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full bg-white text-gray-900" required>{{ $artwork->description }}</textarea>
                 </div>
 
                 <div class="flex items-center justify-end mt-8">

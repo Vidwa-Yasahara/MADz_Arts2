@@ -21,7 +21,7 @@
           Each piece tells a unique story and brings character to your home or office.
         </p>
         <p class="text-xs font-bold tracking-[0.2em] uppercase text-white/80 mb-8 sm:mb-12">
-          Free shipping on orders over $5000 • Authentication guaranteed
+          Free shipping on orders over $3000 • Authentication guaranteed
         </p>
         <a href="{{ route('artworks.index') }}"
            class="inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-bold uppercase tracking-widest text-sm hover:bg-black hover:text-white transition-all duration-300 rounded-full shadow-2xl hover:shadow-xl hover:scale-105">

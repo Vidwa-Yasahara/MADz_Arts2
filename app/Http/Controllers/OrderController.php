@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\CartItem;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderPlaced;
 
 class OrderController extends Controller
 {
@@ -37,29 +39,90 @@ class OrderController extends Controller
 
     public function placeOrder(Request $request)
     {
+        // Validate form inputs
         $request->validate([
-            'address' => 'required|string',
-            'phone' => 'required|string',
+            'street' => 'required|string|min:5|max:200',
+            'city' => 'required|string|min:2|max:100',
+            'postal_code' => 'required|string|min:3|max:20',
+            'country' => 'required|string|min:2|max:100',
+            'phone' => ['required', 'string', 'regex:/^[0-9]{10}$/'],
+            'delivery_fee' => 'nullable|numeric|min:0',
+        ], [
+            'street.required' => 'Please enter your street address.',
+            'street.min' => 'Street address must be at least 5 characters.',
+            'city.required' => 'Please enter your city.',
+            'postal_code.required' => 'Please enter your postal code.',
+            'country.required' => 'Please enter your country.',
+            'phone.required' => 'Please enter your contact number.',
+            'phone.regex' => 'Invalid phone number.',
         ]);
 
+        // Check cart is not empty
         $cartItems = auth()->user()->cartItems()->with('artwork')->get();
-        $total = $cartItems->sum(fn($i) => $i->artwork->price * $i->quantity);
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
 
-        $order = Order::create([
-            'user_id' => auth()->id(),
-            'total' => $total,
-            'address' => $request->address,
-            'phone' => $request->phone,
-            'status' => 'pending',
-        ]);
+        // Validate stock availability
+        foreach ($cartItems as $item) {
+            if ($item->quantity > $item->artwork->stock) {
+                return back()->withErrors([
+                    'stock' => "Not enough stock for {$item->artwork->title}. Only {$item->artwork->stock} available."
+                ])->withInput();
+            }
+        }
+
+        // Combine address fields
+        $fullAddress = $request->street . ', ' . $request->city . ' ' . $request->postal_code . ', ' . $request->country;
+
+        $subtotal = $cartItems->sum(fn($i) => $i->artwork->price * $i->quantity);
+        $deliveryFee = $request->input('delivery_fee', 0);
+        $total = $subtotal + $deliveryFee;
+
+        // Check if user already has a pending order
+        $order = Order::where('user_id', auth()->id())
+            ->where('status', 'pending')
+            ->first();
+
+        if ($order) {
+            // Update existing pending order
+            $order->update([
+                'total' => $order->total + $total,
+                'address' => $fullAddress,
+                'phone' => $request->phone,
+            ]);
+        } else {
+            // Create new order
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'total' => $total,
+                'address' => $fullAddress,
+                'phone' => $request->phone,
+                'status' => 'pending',
+            ]);
+        }
 
         foreach ($cartItems as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'artwork_id' => $item->artwork_id,
-                'quantity' => $item->quantity,
-                'price' => $item->artwork->price,
-            ]);
+            // Decrease stock
+            $item->artwork->decrement('stock', $item->quantity);
+            
+            // Check if this artwork already exists in the order
+            $existingOrderItem = OrderItem::where('order_id', $order->id)
+                ->where('artwork_id', $item->artwork_id)
+                ->first();
+            
+            if ($existingOrderItem) {
+                // Update quantity of existing item
+                $existingOrderItem->increment('quantity', $item->quantity);
+            } else {
+                // Create new order item
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'artwork_id' => $item->artwork_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->artwork->price,
+                ]);
+            }
         }
 
         auth()->user()->cartItems()->delete();
@@ -72,21 +135,34 @@ class OrderController extends Controller
         $order = Order::findOrFail($request->order);
         $this->authorize('view', $order);
 
-        // Generate Stripe Checkout session
+        // Load order items for display
+        $order->load('orderItems.artwork');
+
+        // Convert total to cents for Stripe
+        $amountInCents = (int)($order->total * 100);
+
+        // Generate Stripe Checkout session with proper format
         $checkoutSession = $request->user()->checkout([
-            $order->total => 'Order #' . $order->id
+            [
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => 'MADz Arts Order #' . $order->id,
+                        'description' => 'Art collection order with ' . $order->orderItems->count() . ' item(s)',
+                    ],
+                    'unit_amount' => $amountInCents,
+                ],
+                'quantity' => 1,
+            ]
         ], [
             'success_url' => route('payment.success', ['order' => $order->id]),
-            'cancel_url' => route('payment', ['order' => $order->id]),
+            'cancel_url' => route('orders.show', ['order' => $order->id]),
             'metadata' => [
                 'order_id' => $order->id,
             ],
         ]);
 
-        return view('payment', [
-            'order' => $order,
-            'checkoutSession' => $checkoutSession,
-        ]);
+        return $checkoutSession;
     }
 
     public function processPayment(Request $request)
@@ -104,6 +180,9 @@ class OrderController extends Controller
         // For simplicity, we'll mark it as paid on return if it's not already.
         if ($order->status === 'pending') {
             $order->update(['status' => 'paid']);
+
+            // Send order confirmation email
+            Mail::to($request->user())->send(new OrderPlaced($order));
         }
 
         return view('payment-success', compact('order'));

@@ -9,7 +9,8 @@ class OrderHistory extends Component
     public function render()
     {
         $orders = auth()->user()->orders()
-            ->with('items.artwork')
+            ->where('status', '!=', 'pending')
+            ->with('orderItems.artwork')
             ->latest()
             ->get();
 

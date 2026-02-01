@@ -1,102 +1,158 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:pt-24 pb-24">
-        <div class="mb-12">
-            <h1 class="text-3xl font-bold text-gray-900">Secure Checkout</h1>
-            <p class="text-gray-500 mt-2">Please complete your shipping and logistics details below.</p>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:pt-24 pb-24">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Checkout</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Complete your shipping details below.</p>
         </div>
+
+        @php 
+            $subtotal = 0;
+            foreach($cartItems as $item) {
+                $subtotal += $item->artwork->price * $item->quantity;
+            }
+            
+            if ($subtotal >= 3000) {
+                $deliveryFee = 0;
+            } elseif ($subtotal >= 2000) {
+                $deliveryFee = 75;
+            } elseif ($subtotal >= 1000) {
+                $deliveryFee = 150;
+            } elseif ($subtotal >= 500) {
+                $deliveryFee = 200;
+            } else {
+                $deliveryFee = 250;
+            }
+            
+            $total = $subtotal + $deliveryFee;
+        @endphp
 
         <form action="{{ route('order.place') }}" method="POST">
             @csrf
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <!-- Logistics Form -->
-                <div class="lg:col-span-12 space-y-12 mb-12">
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 space-y-8">
-                        <div class="flex items-center gap-3 pb-4 border-b border-gray-50">
-                            <span class="flex items-center justify-center w-8 h-8 rounded-full bg-black text-white text-xs font-bold">1</span>
-                            <h2 class="text-lg font-bold text-gray-900">Logistics & Delivery Address</h2>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 gap-8">
-                            <div class="space-y-4">
-                                <label class="text-sm font-bold text-gray-700">Full Shipping Address</label>
-                                <textarea name="address" required 
-                                          class="w-full bg-gray-50 border border-gray-200 rounded-lg px-6 py-4 text-sm focus:ring-2 focus:ring-gray-300 outline-none min-h-[120px]"
-                                          placeholder="Street, City, Postcode, Country..."></textarea>
+            
+            <!-- Validation Errors -->
+            @if ($errors->any())
+                <div class="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-400 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left: Form -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Delivery Address -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-base font-bold text-gray-900 mb-4">📦 Delivery Address</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 mb-1 block">Street Address</label>
+                                <input type="text" name="street" required 
+                                       class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-gray-300 outline-none text-gray-900"
+                                       placeholder="123 Main Street, Apt 4B">
                             </div>
-                            
-                            <div class="space-y-4 max-w-md">
-                                <label class="text-sm font-bold text-gray-700">Contact Number (Secure)</label>
-                                <input type="text" name="phone" required 
-                                       class="w-full bg-gray-50 border border-gray-200 rounded-lg px-6 py-4 text-sm focus:ring-2 focus:ring-gray-300 outline-none"
-                                       placeholder="+00 (0) 000 0000">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-600 mb-1 block">City</label>
+                                    <input type="text" name="city" required 
+                                           class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-gray-300 outline-none text-gray-900"
+                                           placeholder="New York">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-600 mb-1 block">Postal Code</label>
+                                    <input type="text" name="postal_code" required 
+                                           class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-gray-300 outline-none text-gray-900"
+                                           placeholder="10001">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-600 mb-1 block">Country</label>
+                                    <input type="text" name="country" required 
+                                           class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-gray-300 outline-none text-gray-900"
+                                           placeholder="United States">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-600 mb-1 block">Phone Number</label>
+                                    <input type="text" name="phone" required 
+                                           class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-gray-300 outline-none text-gray-900"
+                                           placeholder="+1 234 567 8900">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-8 space-y-8">
-                        <div class="flex items-center gap-3 pb-4 border-b border-gray-50">
-                             <span class="flex items-center justify-center w-8 h-8 rounded-full bg-black text-white text-xs font-bold">2</span>
-                             <h2 class="text-lg font-bold text-gray-900">Shipment Handling</h2>
-                        </div>
-                        <div class="p-6 bg-blue-50/50 rounded-lg border border-blue-100 flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 bg-blue-100 rounded-full text-blue-600">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="space-y-1">
-                                    <span class="text-sm font-bold text-gray-900">Insured Art Logistics</span>
-                                    <p class="text-xs text-gray-500">Museum-grade handling is provided as a courtesy for this collection.</p>
-                                </div>
+                    <!-- Shipping -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-base font-bold text-gray-900 mb-4">🚚 Shipping</h2>
+                        <div class="p-4 {{ $deliveryFee == 0 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200' }} rounded-lg border flex items-center justify-between">
+                            <div>
+                                <span class="text-sm font-bold text-gray-900">Insured Art Logistics</span>
+                                @if($deliveryFee > 0)
+                                    <p class="text-xs text-green-600">Spend ${{ number_format(3000 - $subtotal) }} more for FREE delivery!</p>
+                                @endif
                             </div>
-                            <span class="text-sm font-bold text-green-600 uppercase">Free</span>
+                            @if($deliveryFee == 0)
+                                <span class="text-sm font-bold text-green-600">FREE</span>
+                            @else
+                                <span class="text-sm font-bold text-gray-900">${{ number_format($deliveryFee) }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-base font-bold text-gray-900 mb-4">🛒 Items ({{ $cartItems->count() }})</h2>
+                        <div class="space-y-3">
+                            @foreach($cartItems as $item)
+                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                                    <div class="w-12 h-12 bg-white rounded flex-shrink-0 overflow-hidden border">
+                                        <img src="{{ asset('images/' . $item->artwork->image) }}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-gray-900 text-sm truncate">{{ $item->artwork->title }}</h4>
+                                        <p class="text-xs text-gray-500">Qty: {{ $item->quantity }}</p>
+                                    </div>
+                                    <p class="text-sm font-bold text-gray-900">${{ number_format($item->artwork->price * $item->quantity) }}</p>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
 
-                <!-- Review Items & Total -->
-                <div class="lg:col-span-12">
-                    <div class="bg-gray-100 rounded-xl p-10 border border-gray-200 space-y-10">
-                        <h2 class="text-2xl font-bold text-gray-900 text-center">Review Collection ({{ $cartItems->count() }} items)</h2>
-
-                        <div class="space-y-4 max-h-[300px] overflow-y-auto pr-4">
-                            @php $total = 0; @endphp
-                            @foreach($cartItems as $item)
-                                @php $total += $item->artwork->price * $item->quantity; @endphp
-                                <div class="flex items-center gap-6 bg-white p-4 rounded shadow-sm border border-gray-100">
-                                    <div class="w-20 h-20 bg-gray-50 rounded flex items-center justify-center overflow-hidden">
-                                        <img src="{{ asset('images/' . $item->artwork->image) }}" class="max-w-full max-h-full object-contain">
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-bold text-gray-900">{{ $item->artwork->title }}</h4>
-                                        <p class="text-xs text-gray-500 italic">Qty: {{ $item->quantity }} • ${{ number_format($item->artwork->price) }} each</p>
-                                    </div>
-                                    <p class="text-lg font-bold text-gray-900">${{ number_format($item->artwork->price * $item->quantity) }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="pt-8 border-t border-gray-200 flex flex-col items-center">
-                            <div class="w-full max-w-md space-y-3 mb-8">
-                                <div class="flex justify-between text-gray-500 font-medium">
-                                    <span>Valuation Subtotal</span>
-                                    <span>${{ number_format($total) }}</span>
-                                </div>
-                                <div class="flex justify-between text-gray-500 font-medium">
-                                    <span>Shipping & Handling</span>
-                                    <span class="text-green-600">Free</span>
-                                </div>
-                                <div class="flex justify-between items-end pt-4 border-t border-gray-200">
-                                    <span class="text-xl font-bold text-gray-900">Final Total</span>
-                                    <span class="text-4xl font-bold text-gray-900">${{ number_format($total) }}</span>
-                                </div>
+                <!-- Right: Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 sticky top-24">
+                        <h3 class="text-base font-bold text-gray-900 mb-4">Order Summary</h3>
+                        
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Subtotal</span>
+                                <span class="font-bold text-gray-900">${{ number_format($subtotal) }}</span>
                             </div>
-
-                            <button type="submit" class="w-full max-w-md bg-black text-white py-6 rounded-lg font-bold text-lg hover:bg-gray-800 transition shadow-2xl">
-                                Finalize Collection Purchase
-                            </button>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Shipping</span>
+                                @if($deliveryFee == 0)
+                                    <span class="font-bold text-green-600">FREE</span>
+                                @else
+                                    <span class="font-bold text-gray-900">${{ number_format($deliveryFee) }}</span>
+                                @endif
+                            </div>
+                            <hr class="border-gray-200">
+                            <div class="flex justify-between items-end pt-2">
+                                <span class="font-bold text-gray-900">Total</span>
+                                <span class="text-2xl font-bold text-gray-900">${{ number_format($total) }}</span>
+                            </div>
                         </div>
+
+                        <input type="hidden" name="delivery_fee" value="{{ $deliveryFee }}">
+                        <button type="submit" class="w-full mt-6 bg-black text-white py-4 rounded-lg font-bold text-sm hover:bg-gray-800 transition">
+                            Complete Purchase
+                        </button>
+                        
+                        <p class="text-xs text-gray-400 text-center mt-4">🔒 Secure & Insured</p>
                     </div>
                 </div>
             </div>

@@ -1,90 +1,108 @@
 <x-app-layout>
     <div class="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div class="space-y-4">
-                <a href="{{ route('orders.index') }}" class="group inline-flex items-center text-[10px] font-bold text-gray-400 hover:text-black uppercase tracking-[0.4em] transition-all mb-4">
-                    <svg class="w-3 h-3 mr-2 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to Archive
-                </a>
-                <h1 class="text-4xl md:text-5xl font-bold text-black tracking-tighter uppercase leading-tight">Acquisition Overview</h1>
-                <p class="text-[10px] text-gray-300 uppercase tracking-[0.3em] font-medium">Record ID: #{{ $order->id }} • Logged on {{ $order->created_at->format('M d, Y') }}</p>
-            </div>
+        <div class="mb-12">
+            <a href="{{ route('profile.show') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors mb-6">
+                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Profile
+            </a>
             
-            <div class="flex items-center gap-6">
-                <span class="px-8 py-3 text-[10px] font-bold uppercase tracking-[0.5em] rounded-full border
-                    {{ $order->status === 'paid' ? 'bg-black text-white border-black' : 'bg-white text-gray-300 border-black/5 shadow-inner' }}">
-                    {{ $order->status }}
-                </span>
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">Order Details</h1>
+                    <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span>Order #{{ $order->id }}</span>
+                        <span>•</span>
+                        <span>Placed on {{ $order->created_at->format('M d, Y') }}</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="inline-block px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border
+                        {{ $order->status === 'paid' ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700' }}">
+                        {{ $order->status }}
+                    </span>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-32">
-            <!-- Items Collection -->
-            <div class="lg:col-span-7 space-y-24">
-                <div class="space-y-12">
-                     <h2 class="text-[11px] font-bold text-black uppercase tracking-[0.4em] border-b border-black pb-4">Acquired Pieces</h2>
-                     <div class="divide-y divide-black/5">
-                        @foreach($order->orderItems as $item)
-                            <div class="py-12 flex flex-col sm:flex-row items-center gap-12 group">
-                                <div class="relative w-32 aspect-[4/5] bg-gray-50 border border-black/5 overflow-hidden transition-all duration-700 group-hover:-translate-y-1">
-                                    <img src="{{ asset('images/' . $item->artwork->image) }}" class="w-full h-full object-cover">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- Order Items -->
+            <div class="lg:col-span-8 space-y-12">
+                <div class="bg-white dark:bg-ash-800 rounded-2xl shadow-sm border border-gray-100 dark:border-ash-700 overflow-hidden">
+                    <div class="p-6 md:p-8 space-y-8">
+                         <h2 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-ash-700 pb-4">Order Items</h2>
+                         <div class="divide-y divide-gray-100 dark:divide-ash-700">
+                            @foreach($order->orderItems as $item)
+                                <div class="py-6 flex gap-6">
+                                    <div class="w-20 h-24 bg-gray-100 dark:bg-ash-900 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src="{{ asset('images/' . $item->artwork->image) }}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-bold text-gray-900 dark:text-white truncate">{{ $item->artwork->title }}</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">{{ $item->artwork->artist }}</p>
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                            ${{ number_format($item->price) }} <span class="text-gray-400 text-xs">x {{ $item->quantity }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white">${{ number_format($item->quantity * $item->price) }}</p>
+                                    </div>
                                 </div>
-                                <div class="flex-1 space-y-2 text-center sm:text-left">
-                                    <h3 class="font-bold text-lg text-black uppercase tracking-tight">{{ $item->artwork->title }}</h3>
-                                    <p class="text-[10px] text-gray-400 font-medium uppercase tracking-[0.3em]">{{ $item->artwork->artist }}</p>
-                                </div>
-                                <div class="text-right space-y-2">
-                                    <p class="text-[9px] font-medium text-gray-300 uppercase tracking-widest">{{ $item->quantity }} Piece(s) @ ${{ number_format($item->price) }}</p>
-                                    <p class="text-2xl font-serif italic text-black font-light leading-none">${{ number_format($item->quantity * $item->price) }}</p>
-                                </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-12">
-                     <h2 class="text-[11px] font-bold text-black uppercase tracking-[0.4em] border-b border-black pb-4">Logistics Sanctuary</h2>
-                     <div class="p-12 bg-[#F9F9F9] space-y-8">
-                         <div class="space-y-4">
-                            <p class="text-gray-500 font-light text-lg leading-relaxed lowercase first-letter:uppercase italic whitespace-pre-line">{{ $order->address }}</p>
-                            <div class="h-px bg-black/5 w-12"></div>
-                            <div class="flex items-center gap-4 text-[11px] text-gray-400 font-bold uppercase tracking-widest">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
-                                <span>Encoded Contact: {{ $order->phone }}</span>
-                            </div>
+                <div class="bg-white dark:bg-ash-800 rounded-2xl shadow-sm border border-gray-100 dark:border-ash-700 overflow-hidden">
+                     <div class="p-6 md:p-8">
+                         <h2 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-ash-700 pb-4 mb-6">Delivery Information</h2>
+                         <div class="flex flex-col md:flex-row gap-8">
+                             <div class="flex-1">
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Shipping Address</h3>
+                                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">{{ $order->address }}</p>
+                             </div>
+                             <div class="flex-1">
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Contact Details</h3>
+                                <p class="text-gray-600 dark:text-gray-400">{{ $order->phone }}</p>
+                             </div>
                          </div>
                      </div>
                 </div>
             </div>
 
-            <!-- Portfolio Valuation -->
-            <div class="lg:col-span-5">
-                <div class="p-12 md:p-20 bg-white border border-black/5 shadow-2xl rounded-3xl sticky top-32 space-y-12">
-                    <h2 class="text-[10px] font-bold text-black uppercase tracking-[0.5em] text-center">Portfolio Valuation</h2>
-                    <div class="w-12 h-px bg-black mx-auto opacity-10"></div>
+            <!-- Order Summary -->
+            <div class="lg:col-span-4">
+                <div class="bg-white dark:bg-ash-800 rounded-2xl shadow-lg border border-gray-100 dark:border-ash-700 p-6 md:p-8 sticky top-24">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Order Summary</h2>
                     
-                    <div class="space-y-8">
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-400 uppercase tracking-widest">Cumulative Subtotal</span>
-                            <span class="text-black font-bold">${{ number_format($order->total) }}</span>
+                    <div class="space-y-4 mb-6 pb-6 border-b border-gray-100 dark:border-ash-700">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+                            <span class="font-medium text-gray-900 dark:text-white">${{ number_format($order->total) }}</span>
                         </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-gray-400 uppercase tracking-widest font-medium">Logistics (Insured)</span>
-                            <span class="text-black/20 font-bold uppercase text-[9px] tracking-widest italic">Included</span>
-                        </div>
-                        <div class="pt-12 border-t border-black/5 flex justify-between items-end">
-                            <span class="text-[11px] font-bold text-black uppercase tracking-[0.3em]">Total Value</span>
-                            <span class="text-5xl font-light font-serif italic text-black tracking-tighter leading-none">${{ number_format($order->total) }}</span>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Shipping</span>
+                            <span class="font-medium text-gray-900 dark:text-white">Free</span>
                         </div>
                     </div>
 
-                    <div class="pt-12 text-center border-t border-black/5">
-                        <p class="text-[9px] text-gray-300 uppercase tracking-widest mb-6">Financial record secured via</p>
-                         <svg class="h-5 text-gray-200 mx-auto" viewBox="0 0 40 40" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M34.9 14.9C34.9 10.5 31.3 6.9 26.9 6.9H13.1C8.7 6.9 5.1 10.5 5.1 14.9V25.1C5.1 29.5 8.7 33.1 13.1 33.1H26.9C31.3 33.1 34.9 29.5 34.9 25.1V14.9Z"/>
-                         </svg>
+                    <div class="flex justify-between items-end mb-8">
+                        <span class="text-base font-bold text-gray-900 dark:text-white">Total</span>
+                        <span class="text-3xl font-bold text-gray-900 dark:text-white">${{ number_format($order->total) }}</span>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-ash-900 rounded-xl p-4 flex items-center gap-3">
+                         <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                         </div>
+                         <div>
+                             <p class="text-sm font-bold text-gray-900 dark:text-white">Payment Secure</p>
+                             <p class="text-xs text-gray-500 dark:text-gray-400">Processed securely via Stripe</p>
+                         </div>
                     </div>
                 </div>
             </div>

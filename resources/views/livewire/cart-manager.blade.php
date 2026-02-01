@@ -8,10 +8,15 @@
         @auth
             <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-center gap-4 border border-gray-200 bg-white rounded p-2">
-                    <button wire:click="decrement" class="px-4 py-1 text-gray-400 hover:text-black font-bold outline-none text-xl transition">-</button>
-                    <span class="text-lg font-bold w-3 text-center">{{ $quantity }}</span>
-                    <button wire:click="increment" class="px-4 py-1 text-gray-400 hover:text-black font-bold outline-none text-xl transition">+</button>
+                    <button wire:click="decrement" 
+                            class="px-4 py-1 font-bold outline-none text-xl transition {{ $quantity <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-black' }}"
+                            {{ $quantity <= 1 ? 'disabled' : '' }}>-</button>
+                    <span class="text-lg font-bold w-3 text-center text-gray-900">{{ $quantity }}</span>
+                    <button wire:click="increment" 
+                            class="px-4 py-1 font-bold outline-none text-xl transition {{ $quantity >= $maxStock ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-black' }}"
+                            {{ $quantity >= $maxStock ? 'disabled' : '' }}>+</button>
                 </div>
+
 
                 <div>
                     @if(auth()->check() && auth()->user()->details && auth()->user()->details->role === 'admin')
@@ -25,9 +30,15 @@
                 </div>
             </div>
 
-            @if (session()->has('message'))
+            @if (session()->has('success'))
                 <div class="bg-green-100 text-green-700 p-4 rounded text-sm text-center font-bold">
-                    {{ session('message') }}
+                    {{ session('success') }}
+                </div>
+            @endif
+            
+            @if (session()->has('error'))
+                <div class="bg-red-100 text-red-700 p-4 rounded text-sm text-center font-bold">
+                    {{ session('error') }}
                 </div>
             @endif
         @else

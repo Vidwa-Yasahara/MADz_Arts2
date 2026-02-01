@@ -35,6 +35,7 @@
           <li><a href="{{ route('artworks.index') }}" class="hover:text-black dark:hover:text-white transition-colors">Art Items</a></li>
           <li><a href="{{ route('about') }}" class="hover:text-black dark:hover:text-white transition-colors">About us</a></li>
           @auth
+
             @if(auth()->user()->isAdmin())
               <li><a href="{{ route('admin.dashboard') }}" class="text-indigo-600 font-bold hover:text-indigo-800 transition-colors">Admin</a></li>
             @endif
@@ -76,11 +77,13 @@
                 </svg>
           </button>
 
+          @if(!auth()->check() || auth()->user()->role !== 'admin')
           <a href="{{ route('cart.index') }}" class="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" aria-label="Cart">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 3.75h2.386a1.5 1.5 0 0 1 1.447 1.095l.522 1.965m0 0L8.25 14.25h8.962a1.5 1.5 0 0 0 1.465-1.19l1.2-6A1.5 1.5 0 0 0 18.414 5.25H6.605m0 0L6 3.75M8.25 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm9 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
             </svg>
           </a>
+          @endif
 
           @auth
             <div class="hidden md:flex items-center gap-3">
@@ -122,12 +125,15 @@
           <a href="{{ route('home') }}" class="block rounded px-3 py-2 hover:bg-gray-50 dark:hover:bg-ash-800 transition-colors">Home</a>
           <a href="{{ route('artworks.index') }}" class="block rounded px-3 py-2 hover:bg-gray-50 dark:hover:bg-ash-800 transition-colors">Art Items</a>
           <a href="{{ route('about') }}" class="block rounded px-3 py-2 hover:bg-gray-50 dark:hover:bg-ash-800 transition-colors">About us</a>
+          @if(!auth()->check() || auth()->user()->role !== 'admin')
           <a href="{{ route('cart.index') }}" class="mt-2 block rounded px-3 py-2 hover:bg-gray-50 dark:hover:bg-ash-800 transition-colors">Cart</a>
+          @endif
           @auth
             <div class="mt-2 border-t border-gray-100 dark:border-ash-700 pt-2">
               <a href="{{ route('profile.show') }}" class="block px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-ash-800 transition-colors">
                 Hi, {{ auth()->user()->name }}
               </a>
+
               <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="w-full text-left block rounded px-3 py-2 hover:bg-gray-50 dark:hover:bg-ash-800 text-gray-600 dark:text-gray-400 transition-colors">Logout</button>

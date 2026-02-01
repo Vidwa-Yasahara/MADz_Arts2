@@ -11,21 +11,21 @@
 
                 <div class="space-y-6">
                     <div class="space-y-2">
-                        <span class="text-[10px] font-bold text-gray-300 uppercase tracking-[0.6em] block">Transaction Finalized</span>
-                        <h1 class="text-4xl md:text-5xl font-bold text-black uppercase tracking-tighter">Acquisition Confirmed</h1>
+                        <span class="text-[10px] font-bold text-gray-300 uppercase tracking-[0.6em] block">Payment Successful</span>
+                        <h1 class="text-4xl md:text-5xl font-bold text-black uppercase tracking-tighter">Order Confirmed</h1>
                     </div>
                     <div class="w-16 h-px bg-black mx-auto opacity-10"></div>
                     <p class="text-gray-400 font-light text-lg leading-relaxed max-w-md mx-auto">
-                        Your chosen pieces have been secured in our private archive. A digital record of this acquisition has been dispatched to your registered communique.
+                        Thank you for your purchase! Your order has been placed successfully. A confirmation email has been sent to you.
                     </p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8">
                     <a href="{{ route('orders.index') }}" class="px-10 py-5 bg-black text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-gray-900 transition-all w-full sm:w-auto">
-                        View Private Archive
+                        View Orders
                     </a>
                     <a href="{{ route('artworks.index') }}" class="px-10 py-5 border border-black/10 text-black text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-gray-50 transition-all w-full sm:w-auto">
-                        Return to Gallery
+                        Continue Shopping
                     </a>
                 </div>
 
