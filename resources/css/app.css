@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+@layer base {
+    body {
+        @apply bg-ash-50 text-gray-900 antialiased dark:bg-ash-900 dark:text-ash-100 transition-colors duration-300;
+    }
+}
