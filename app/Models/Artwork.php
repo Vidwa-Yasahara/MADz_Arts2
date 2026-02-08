@@ -45,4 +45,3 @@ class Artwork extends Model
             ->orWhere('description', 'like', "%{$term}%");
     }
 }
-
